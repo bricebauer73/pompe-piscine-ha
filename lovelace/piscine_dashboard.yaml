@@ -1,0 +1,161 @@
+title: Piscine
+views:
+  - title: Piscine
+    icon: mdi:pool
+    path: piscine
+    cards:
+
+      # ══ Statut général ═══════════════════════════════════════
+      - type: horizontal-stack
+        cards:
+          - type: entity
+            entity: switch.pompe_piscine
+            name: Pompe
+            icon: mdi:pump
+            state_color: true
+          - type: entity
+            entity: sensor.tarif_edf
+            name: Tarif EDF
+            icon: mdi:clock-time-eight
+          - type: entity
+            entity: sensor.temperature_piscine
+            name: Temp eau
+            icon: mdi:thermometer-water
+          - type: entity
+            entity: sensor.pompe_duree_filtration
+            name: Durée filtr.
+            icon: mdi:timer
+
+      # ══ Jauges ══════════════════════════════════════════════
+      - type: horizontal-stack
+        cards:
+          - type: gauge
+            entity: sensor.temperature_piscine
+            name: Temp eau
+            unit: "°C"
+            min: 0
+            max: 35
+            severity:
+              green: 20
+              yellow: 28
+              red: 32
+          - type: gauge
+            entity: sensor.pompe_puissance
+            name: Puissance
+            unit: W
+            min: 0
+            max: 1800
+            severity:
+              green: 0
+              yellow: 1600
+              red: 1700
+          - type: gauge
+            entity: sensor.pompe_cout_jour
+            name: "Coût jour"
+            unit: "€"
+            min: 0
+            max: 1
+            severity:
+              green: 0
+              yellow: 0.40
+              red: 0.70
+
+      # ══ Coûts ════════════════════════════════════════════════
+      - type: entities
+        title: "💶 Coûts électrique pompe"
+        icon: mdi:cash
+        entities:
+          - entity: sensor.pompe_cout_jour
+            name: "Aujourd'hui"
+            secondary_info: last-changed
+          - entity: sensor.pompe_cout_semaine
+            name: Cette semaine
+          - entity: sensor.pompe_cout_mois
+            name: Ce mois
+          - entity: sensor.pompe_cout_annuel_projete
+            name: "Annuel projeté"
+            icon: mdi:chart-line
+          - type: divider
+          - entity: input_number.tarif_hc
+            name: "Tarif HC (€/kWh)"
+          - entity: input_number.tarif_hp
+            name: "Tarif HP (€/kWh)"
+
+      # ══ Énergie ══════════════════════════════════════════════
+      - type: entities
+        title: "⚡ Consommation (kWh)"
+        icon: mdi:counter
+        entities:
+          - entity: sensor.pompe_energie_jour
+            name: "Aujourd'hui"
+          - entity: sensor.pompe_energie_semaine
+            name: Cette semaine
+          - entity: sensor.pompe_energie_mois
+            name: Ce mois
+          - entity: sensor.pompe_energie
+            name: Total cumulé
+
+      # ══ Historique coût 30j ═════════════════════════════════
+      - type: statistics-graph
+        title: "Coût journalier (30 jours)"
+        entities:
+          - entity: sensor.pompe_cout_jour
+            name: "Coût (€)"
+        chart_type: bar
+        period: day
+        days_to_show: 30
+        stat_types:
+          - max
+
+      # ══ Historique énergie 30j ══════════════════════════════
+      - type: statistics-graph
+        title: "Consommation journalière (30 jours)"
+        entities:
+          - entity: sensor.pompe_energie_jour
+            name: "kWh/jour"
+        chart_type: bar
+        period: day
+        days_to_show: 30
+        stat_types:
+          - max
+
+      # ══ Puissance temps réel ═══════════════════════════════
+      - type: history-graph
+        title: "Puissance pompe (24h)"
+        entities:
+          - entity: sensor.pompe_puissance
+            name: "Puissance (W)"
+        hours_to_show: 24
+        refresh_interval: 10
+
+      # ══ Température 48h ════════════════════════════════════
+      - type: history-graph
+        title: "Température eau (48h)"
+        entities:
+          - entity: sensor.temperature_piscine
+            name: "Température (°C)"
+        hours_to_show: 48
+        refresh_interval: 60
+
+      # ══ Mesures électriques ════════════════════════════════
+      - type: entities
+        title: "🔌 Mesures électriques"
+        icon: mdi:sine-wave
+        entities:
+          - entity: sensor.pompe_puissance
+            name: Puissance (W)
+          - entity: sensor.pompe_courant
+            name: Courant (A)
+          - entity: sensor.pompe_tension
+            name: Tension (V)
+          - entity: sensor.pompe_facteur_puissance
+            name: Facteur de puissance
+
+      # ══ Commande manuelle ══════════════════════════════════
+      - type: button
+        name: "Marche / Arrêt manuel"
+        icon: mdi:play-circle
+        entity: switch.pompe_piscine
+        tap_action:
+          action: toggle
+        show_state: true

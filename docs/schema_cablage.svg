@@ -1,0 +1,275 @@
+<svg viewBox="0 0 820 640" xmlns="http://www.w3.org/2000/svg" font-family="monospace">
+<rect width="820" height="640" fill="#12121f"/>
+
+<!-- ═══════════════════════════════════════════════
+     TITRE
+═══════════════════════════════════════════════ -->
+<text x="410" y="16" text-anchor="middle" font-size="12" font-weight="bold" fill="#7ec8e3">SCHÉMA CÂBLAGE — Sonoff POW R3 / Contacteur / PZEM-004T / Pompe Hayward SP1622XE251</text>
+
+<!-- ═══════════════════════════════════════════════
+     LÉGENDE (haut droite)
+═══════════════════════════════════════════════ -->
+<rect x="620" y="22" width="192" height="95" rx="4" fill="#0d0d1a" stroke="#555" stroke-width="1"/>
+<text x="716" y="37" text-anchor="middle" font-size="10" font-weight="bold" fill="#fff">LÉGENDE</text>
+<line x1="630" y1="47" x2="658" y2="47" stroke="#cc3333" stroke-width="2.5"/>
+<text x="664" y="51" font-size="9" fill="#ff9999">Phase L — commande</text>
+<line x1="630" y1="59" x2="658" y2="59" stroke="#cc3333" stroke-width="4"/>
+<text x="664" y="63" font-size="9" fill="#ff6666">Phase L — puissance</text>
+<line x1="630" y1="71" x2="658" y2="71" stroke="#3366cc" stroke-width="4"/>
+<text x="664" y="75" font-size="9" fill="#88aaff">Neutre N</text>
+<line x1="630" y1="83" x2="658" y2="83" stroke="#33aa33" stroke-width="2.5"/>
+<text x="664" y="87" font-size="9" fill="#88cc88">Terre PE</text>
+<line x1="630" y1="95" x2="658" y2="95" stroke="#aa44cc" stroke-width="1.5" stroke-dasharray="4,2"/>
+<text x="664" y="99" font-size="9" fill="#cc88ee">UART / CT (données)</text>
+<line x1="630" y1="107" x2="658" y2="107" stroke="#ff8822" stroke-width="1.5" stroke-dasharray="5,3"/>
+<text x="664" y="111" font-size="9" fill="#ffaa66">Commande bobine</text>
+
+<!-- ═══════════════════════════════════════════════
+     BLOC 1 — ALIMENTATION / PROTECTION
+═══════════════════════════════════════════════ -->
+<rect x="30" y="22" width="575" height="70" rx="5" fill="#1a1a35" stroke="#5577aa" stroke-width="2"/>
+<text x="317" y="42" text-anchor="middle" font-size="11" font-weight="bold" fill="#7ec8e3">ALIMENTATION + PROTECTION</text>
+<text x="317" y="57" text-anchor="middle" font-size="10" fill="#aaa">Tableau 230V  +  Disjoncteur Bipolaire 16A Courbe C</text>
+<!-- Ports sortie alimentation -->
+<circle cx="150" cy="92" r="6" fill="#cc3333"/>
+<text x="150" y="108" text-anchor="middle" font-size="9" fill="#ff9999">L</text>
+<circle cx="420" cy="92" r="6" fill="#3366cc"/>
+<text x="420" y="108" text-anchor="middle" font-size="9" fill="#88aaff">N</text>
+<circle cx="560" cy="92" r="6" fill="#33aa33"/>
+<text x="560" y="108" text-anchor="middle" font-size="9" fill="#88cc88">PE</text>
+
+<!-- ═══════════════════════════════════════════════
+     FILS DEPUIS ALIMENTATION
+═══════════════════════════════════════════════ -->
+
+<!-- L : nœud à (150,120), split control/puissance -->
+<circle cx="150" cy="120" r="4" fill="#cc3333"/>
+
+<!-- Wire L descend de (150,92) à (150,120) -->
+<line x1="150" y1="92" x2="150" y2="120" stroke="#cc3333" stroke-width="2.5"/>
+
+<!-- L-COMMANDE (orange tirets) : (150,120)→(90,120)→(90,143) -->
+<line x1="150" y1="120" x2="90" y2="120" stroke="#ff8822" stroke-width="2" stroke-dasharray="5,3"/>
+<line x1="90" y1="120" x2="90" y2="143" stroke="#ff8822" stroke-width="2" stroke-dasharray="5,3"/>
+<text x="118" y="115" text-anchor="middle" font-size="8" fill="#ffaa66">L cmd</text>
+
+<!-- L-PUISSANCE (rouge épais) : (150,120)→(150,148)→(560,148)→(560,228) -->
+<line x1="150" y1="120" x2="150" y2="148" stroke="#cc3333" stroke-width="3.5"/>
+<line x1="150" y1="148" x2="560" y2="148" stroke="#cc3333" stroke-width="3.5"/>
+<line x1="560" y1="148" x2="560" y2="228" stroke="#cc3333" stroke-width="3.5"/>
+<text x="355" y="142" text-anchor="middle" font-size="8" fill="#ff8888">L puissance</text>
+
+<!-- N : nœud principal à (420,130) -->
+<line x1="420" y1="92" x2="420" y2="130" stroke="#3366cc" stroke-width="3.5"/>
+<circle cx="420" cy="130" r="4" fill="#3366cc"/>
+
+<!-- N-SONOFF (bleu tirets) : (420,130)→(185,130)→(185,143) -->
+<line x1="420" y1="130" x2="185" y2="130" stroke="#ff8822" stroke-width="2" stroke-dasharray="5,3"/>
+<line x1="185" y1="130" x2="185" y2="143" stroke="#ff8822" stroke-width="2" stroke-dasharray="5,3"/>
+<text x="300" y="125" text-anchor="middle" font-size="8" fill="#ffaa66">N cmd</text>
+
+<!-- N→A2 + N-PUISSANCE : (420,130) → (660,130) nœud → (765,130)→(765,180) pour A2 -->
+<line x1="420" y1="130" x2="660" y2="130" stroke="#3366cc" stroke-width="3.5"/>
+<circle cx="660" cy="130" r="4" fill="#3366cc"/>
+<line x1="660" y1="130" x2="765" y2="130" stroke="#3366cc" stroke-width="2" stroke-dasharray="5,3"/>
+<line x1="765" y1="130" x2="765" y2="183" stroke="#3366cc" stroke-width="2" stroke-dasharray="5,3"/>
+<text x="540" y="124" text-anchor="middle" font-size="8" fill="#88aaff">N</text>
+
+<!-- N-PUISSANCE descend : (660,130)→(660,465)→(560,465)→(560,520) -->
+<line x1="660" y1="130" x2="660" y2="465" stroke="#3366cc" stroke-width="3.5"/>
+<line x1="660" y1="465" x2="560" y2="465" stroke="#3366cc" stroke-width="3.5"/>
+<line x1="560" y1="465" x2="560" y2="520" stroke="#3366cc" stroke-width="3.5"/>
+<text x="675" y="310" font-size="8" fill="#88aaff">N</text>
+
+<!-- PE : (560,92)→(760,92)→(760,520)→(645,520) -->
+<line x1="560" y1="92" x2="760" y2="92" stroke="#33aa33" stroke-width="2.5"/>
+<line x1="760" y1="92" x2="760" y2="520" stroke="#33aa33" stroke-width="2.5"/>
+<line x1="760" y1="520" x2="645" y2="520" stroke="#33aa33" stroke-width="2.5"/>
+<text x="775" y="310" font-size="8" fill="#88cc88">PE</text>
+
+<!-- ═══════════════════════════════════════════════
+     BLOC 2 — SONOFF POW R3
+═══════════════════════════════════════════════ -->
+<rect x="30" y="143" width="240" height="115" rx="6" fill="#0d1a2a" stroke="#7ec8e3" stroke-width="2"/>
+<text x="150" y="163" text-anchor="middle" font-size="11" font-weight="bold" fill="#7ec8e3">SONOFF POW R3</text>
+<!-- Bornes top -->
+<rect x="68" y="143" width="44" height="16" rx="3" fill="#0a141f" stroke="#ff8822" stroke-width="1"/>
+<text x="90" y="155" text-anchor="middle" font-size="8" fill="#ffaa66">IN (L)</text>
+<rect x="163" y="143" width="44" height="16" rx="3" fill="#0a141f" stroke="#ff8822" stroke-width="1"/>
+<text x="185" y="155" text-anchor="middle" font-size="8" fill="#ffaa66">N</text>
+<!-- Borne OUT droite -->
+<rect x="258" y="188" width="14" height="16" rx="2" fill="#0a141f" stroke="#ff8822" stroke-width="1"/>
+<text x="265" y="199" text-anchor="middle" font-size="7" fill="#ffaa66">OUT</text>
+<!-- Info -->
+<text x="150" y="195" text-anchor="middle" font-size="9" fill="#7ec8e3">📡 WiFi → Home Assistant</text>
+<text x="150" y="210" text-anchor="middle" font-size="8" fill="#aaa">On/Off pompe</text>
+<text x="150" y="225" text-anchor="middle" font-size="8" fill="#aaa">Mesure bobine ~8W</text>
+<text x="150" y="240" text-anchor="middle" font-size="8" fill="#aaa">switch.pompe_piscine</text>
+
+<!-- Sonoff OUT → Bobine A1 : (272,196)→(520,196)→(520,183) -->
+<line x1="272" y1="196" x2="520" y2="196" stroke="#ff8822" stroke-width="2" stroke-dasharray="5,3"/>
+<line x1="520" y1="196" x2="520" y2="183" stroke="#ff8822" stroke-width="2" stroke-dasharray="5,3"/>
+<text x="395" y="190" text-anchor="middle" font-size="8" fill="#ffaa66">commande bobine</text>
+
+<!-- ═══════════════════════════════════════════════
+     BLOC 3 — CONTACTEUR
+═══════════════════════════════════════════════ -->
+<rect x="520" y="130" width="250" height="275" rx="6" fill="#0d1a0d" stroke="#66aa33" stroke-width="2"/>
+<text x="645" y="150" text-anchor="middle" font-size="11" font-weight="bold" fill="#88cc44">CONTACTEUR</text>
+<text x="645" y="164" text-anchor="middle" font-size="9" fill="#aaa">2 pôles — 25A — 230V</text>
+
+<!-- Sous-section BOBINE -->
+<rect x="528" y="170" width="234" height="55" rx="3" fill="#081508" stroke="#66aa33" stroke-width="1"/>
+<text x="645" y="185" text-anchor="middle" font-size="9" fill="#88cc44">BOBINE (commande)</text>
+<!-- A1 borne gauche -->
+<circle cx="530" cy="195" r="5" fill="#ff8822"/>
+<text x="542" y="199" font-size="8" fill="#ffaa66">A1</text>
+<!-- A2 borne droite -->
+<circle cx="760" cy="195" r="5" fill="#3366cc"/>
+<text x="740" y="199" font-size="8" fill="#88aaff">A2</text>
+<text x="645" y="215" text-anchor="middle" font-size="8" fill="#888">bobine 230V AC — faible courant</text>
+
+<!-- Sous-section CONTACTS NO -->
+<rect x="528" y="233" width="234" height="115" rx="3" fill="#081508" stroke="#cc3333" stroke-width="1.5"/>
+<text x="645" y="250" text-anchor="middle" font-size="9" fill="#cc3333">CONTACTS NO (puissance)</text>
+<!-- Symbole contact NO simple -->
+<line x1="615" y1="262" x2="615" y2="278" stroke="#cc3333" stroke-width="2"/>
+<line x1="610" y1="278" x2="620" y2="278" stroke="#cc3333" stroke-width="2"/>
+<line x1="610" y1="286" x2="620" y2="286" stroke="#cc3333" stroke-width="2"/>
+<line x1="615" y1="286" x2="615" y2="300" stroke="#cc3333" stroke-width="2"/>
+<text x="635" y="282" font-size="8" fill="#cc3333">NO</text>
+<!-- L-in borne top -->
+<circle cx="560" cy="233" r="5" fill="#cc3333"/>
+<text x="544" y="237" font-size="8" fill="#ff8888">L-in</text>
+<!-- L-out borne bottom -->
+<circle cx="560" cy="348" r="5" fill="#cc3333"/>
+<text x="544" y="348" font-size="8" fill="#ff8888">L-out</text>
+<!-- L pôle 1 line -->
+<line x1="560" y1="233" x2="560" y2="348" stroke="#cc3333" stroke-width="3.5"/>
+<!-- Symbole coupure -->
+<line x1="555" y1="270" x2="565" y2="270" stroke="#0d1a0d" stroke-width="8"/>
+<line x1="553" y1="275" x2="567" y2="267" stroke="#cc3333" stroke-width="2"/>
+
+<!-- N pôle 2 — même symbole -->
+<circle cx="680" cy="233" r="5" fill="#3366cc"/>
+<text x="688" y="237" font-size="8" fill="#88aaff">N-in</text>
+<circle cx="680" cy="348" r="5" fill="#3366cc"/>
+<text x="688" y="348" font-size="8" fill="#88aaff">N-out</text>
+<!-- N line through contacts -->
+<line x1="680" y1="233" x2="680" y2="348" stroke="#3366cc" stroke-width="3.5"/>
+<line x1="675" y1="270" x2="685" y2="270" stroke="#0d1a0d" stroke-width="8"/>
+<line x1="673" y1="275" x2="687" y2="267" stroke="#3366cc" stroke-width="2"/>
+
+<!-- Relier N-puis vertical (x=660) aux bornes N contacteur -->
+<!-- N puissance arrive à x=660, N-in contacteur à x=680 -->
+<line x1="660" y1="233" x2="680" y2="233" stroke="#3366cc" stroke-width="3.5"/>
+<line x1="660" y1="348" x2="680" y2="348" stroke="#3366cc" stroke-width="3.5"/>
+<!-- N à x=660 relie L-in (contacteur top) et L-out -->
+<circle cx="660" cy="233" r="3" fill="#3366cc"/>
+<circle cx="660" cy="348" r="3" fill="#3366cc"/>
+
+<!-- ═══════════════════════════════════════════════
+     FILS L-puissance entrant/sortant contacteur
+═══════════════════════════════════════════════ -->
+<!-- L-in : déjà tracé de (560,148)→(560,228), arrive à (560,233) -->
+<line x1="560" y1="228" x2="560" y2="233" stroke="#cc3333" stroke-width="3.5"/>
+
+<!-- L-out → pompe : (560,348)→(560,390)→(490,390)→(490,520) -->
+<line x1="560" y1="348" x2="560" y2="390" stroke="#cc3333" stroke-width="3.5"/>
+<line x1="560" y1="390" x2="490" y2="390" stroke="#cc3333" stroke-width="3.5"/>
+<line x1="490" y1="390" x2="490" y2="520" stroke="#cc3333" stroke-width="3.5"/>
+
+<!-- N-in/out contacteur reliés au N-puis vertical (x=660) -->
+<!-- N entre dans contacteur depuis la droite en haut, sort en bas -->
+<!-- N arrive top du contacteur à (660,130)→(660,233) déjà tracé -->
+
+<!-- ═══════════════════════════════════════════════
+     BLOC 4 — PZEM-004T
+═══════════════════════════════════════════════ -->
+<rect x="165" y="440" width="175" height="95" rx="6" fill="#1a0d2a" stroke="#cc44cc" stroke-width="2"/>
+<text x="252" y="458" text-anchor="middle" font-size="10" font-weight="bold" fill="#ee88ee">PZEM-004T</text>
+<text x="252" y="471" text-anchor="middle" font-size="8" fill="#aaa">Mesure vraie conso pompe</text>
+<text x="252" y="484" text-anchor="middle" font-size="8" fill="#ee88ee">sensor.pompe_puissance_w</text>
+<text x="252" y="497" text-anchor="middle" font-size="8" fill="#ee88ee">sensor.pompe_energie_kwh</text>
+<text x="252" y="510" text-anchor="middle" font-size="8" fill="#aaa">Tension : L+N côté pompe</text>
+<text x="252" y="523" text-anchor="middle" font-size="8" fill="#aaa">Pince CT : fil L vers pompe</text>
+
+<!-- BLOC 5 — ESP32/ESPHome -->
+<rect x="20" y="440" width="135" height="95" rx="6" fill="#1a1a0d" stroke="#aacc33" stroke-width="2"/>
+<text x="87" y="458" text-anchor="middle" font-size="10" font-weight="bold" fill="#ccee55">ESP32</text>
+<text x="87" y="471" text-anchor="middle" font-size="9" fill="#aaa">ESPHome</text>
+<text x="87" y="484" text-anchor="middle" font-size="8" fill="#ccee55">📡 WiFi → HA</text>
+<text x="87" y="497" text-anchor="middle" font-size="8" fill="#aaa">TX → GPIO17</text>
+<text x="87" y="510" text-anchor="middle" font-size="8" fill="#aaa">RX → GPIO16</text>
+<text x="87" y="523" text-anchor="middle" font-size="8" fill="#aaa">Alim 5V USB/DIN</text>
+
+<!-- UART ESP32 ↔ PZEM -->
+<line x1="155" y1="487" x2="165" y2="487" stroke="#aa44cc" stroke-width="1.5" stroke-dasharray="4,2"/>
+<text x="160" y="482" text-anchor="middle" font-size="7" fill="#cc88ee">UART</text>
+
+<!-- CT PINCE — sur fil L vertical x=490, entre y=390 et y=520 -->
+<!-- Ellipse autour du fil L à y=455 -->
+<ellipse cx="490" cy="455" rx="14" ry="22" fill="none" stroke="#cc44cc" stroke-width="2.5"/>
+<text x="508" y="451" font-size="8" fill="#ee88ee">CT</text>
+<text x="508" y="462" font-size="8" fill="#ee88ee">pince</text>
+
+<!-- Fil PZEM → CT -->
+<line x1="252" y1="440" x2="252" y2="418" stroke="#aa44cc" stroke-width="1.5" stroke-dasharray="4,2"/>
+<line x1="252" y1="418" x2="490" y2="418" stroke="#aa44cc" stroke-width="1.5" stroke-dasharray="4,2"/>
+<line x1="490" y1="418" x2="490" y2="433" stroke="#aa44cc" stroke-width="1.5" stroke-dasharray="4,2"/>
+
+<!-- ═══════════════════════════════════════════════
+     BLOC 6 — POMPE HAYWARD
+═══════════════════════════════════════════════ -->
+<rect x="365" y="520" width="290" height="95" rx="7" fill="#2a1500" stroke="#cc8833" stroke-width="2.5"/>
+<text x="510" y="542" text-anchor="middle" font-size="11" font-weight="bold" fill="#cc8833">POMPE HAYWARD</text>
+<text x="510" y="557" text-anchor="middle" font-size="9" fill="#aaa">SP1622XE251 — 1550W — 230V mono</text>
+<!-- Bornes pompe -->
+<circle cx="430" cy="520" r="7" fill="#cc3333"/>
+<text x="430" y="590" text-anchor="middle" font-size="9" fill="#ff8888">L</text>
+<line x1="430" y1="520" x2="430" y2="580" stroke="#cc3333" stroke-width="0.5"/>
+<circle cx="510" cy="520" r="7" fill="#3366cc"/>
+<text x="510" y="590" text-anchor="middle" font-size="9" fill="#88aaff">N</text>
+<line x1="510" y1="520" x2="510" y2="580" stroke="#3366cc" stroke-width="0.5"/>
+<circle cx="590" cy="520" r="7" fill="#33aa33"/>
+<text x="590" y="590" text-anchor="middle" font-size="9" fill="#88cc88">PE</text>
+<line x1="590" y1="520" x2="590" y2="580" stroke="#33aa33" stroke-width="0.5"/>
+<!-- Lignes bornes dans le bloc -->
+<text x="430" y="568" text-anchor="middle" font-size="8" fill="#ff8888">Phase</text>
+<text x="510" y="568" text-anchor="middle" font-size="8" fill="#88aaff">Neutre</text>
+<text x="590" y="568" text-anchor="middle" font-size="8" fill="#88cc88">Terre</text>
+
+<!-- L arrive à la pompe : (490,520)→ pompe L port (430,520) -->
+<!-- L vertical x=490 arrive à y=520. Pompe L port est à x=430 y=520 -->
+<!-- Petit horizontal de jonction -->
+<line x1="490" y1="520" x2="430" y2="520" stroke="#cc3333" stroke-width="3.5"/>
+
+<!-- N arrive pompe : (560,465)→(560,520)→(510,520) - mais N-puis est à x=660 qui va à (560,465)→(560,520) -->
+<!-- En fait N-puis: (660,465)→(560,465)→(560,520) -->
+<!-- Petit horizontal depuis (560,520) à pompe N (510,520) -->
+<line x1="560" y1="520" x2="510" y2="520" stroke="#3366cc" stroke-width="3.5"/>
+
+<!-- PE arrive pompe : (760,520)→(590,520) -->
+<line x1="760" y1="520" x2="590" y2="520" stroke="#33aa33" stroke-width="2.5"/>
+
+<!-- ═══════════════════════════════════════════════
+     ZONES CIRCUIT — labels
+═══════════════════════════════════════════════ -->
+<rect x="30" y="117" width="230" height="18" rx="3" fill="#1a1100" stroke="none"/>
+<text x="145" y="129" text-anchor="middle" font-size="8" fill="#ffaa66">── CIRCUIT COMMANDE (~8W) ──</text>
+
+<rect x="390" y="117" width="115" height="18" rx="3" fill="#1a0000" stroke="none"/>
+<text x="448" y="129" text-anchor="middle" font-size="8" fill="#ff8888">── PUISSANCE (1550W) ──</text>
+
+<!-- Séparateur visuel commande/puissance -->
+<line x1="285" y1="120" x2="285" y2="410" stroke="#444" stroke-width="1" stroke-dasharray="6,4"/>
+<text x="325" y="400" text-anchor="middle" font-size="8" fill="#555">│</text>
+
+<!-- ═══════════════════════════════════════════════
+     NOTE DE BAS DE PAGE
+═══════════════════════════════════════════════ -->
+<rect x="20" y="610" width="780" height="25" rx="4" fill="#1a1000" stroke="#886600" stroke-width="1"/>
+<text x="30" y="622" font-size="9" fill="#ffcc44">⚠  Pince CT autour du seul fil Phase (L) vers la pompe — ne JAMAIS mettre CT sur N ou PE.</text>
+<text x="450" y="622" font-size="9" fill="#ffcc44">Alimenter l'ESP32 séparément (5V USB ou alim DIN).</text>
+
+</svg>

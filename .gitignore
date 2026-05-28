@@ -1,0 +1,7 @@
+*.bak
+*.swp
+*~
+.DS_Store
+secrets.yaml
+.vscode/
+.idea/

@@ -1,0 +1,6 @@
+{
+  "name": "Pompe Piscine HA",
+  "render_readme": true,
+  "country": ["FR"],
+  "homeassistant": "2024.6.0"
+}
