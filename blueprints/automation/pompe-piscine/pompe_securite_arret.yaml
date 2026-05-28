@@ -13,7 +13,7 @@ blueprint:
           domain: switch
     heure_arret:
       name: Heure d'arrêt sécurité
-      description:" Quelques minutes avant la fin des HC (ex: 06h25 si HC fin = 06h30)"
+      description: "Quelques minutes avant la fin des HC (ex: 06h25 si HC fin = 06h30)"
       default: "06:25:00"
       selector:
         time:
