@@ -1,0 +1,75 @@
+blueprint:
+  name: "Pompe Piscine — Complément Heures Pleines"
+  description: >
+    Démarre la pompe en journée pour compléter la filtration si la durée
+    T°/2 dépasse la fenêtre HC disponible. Ne s'active que si la
+    température dépasse un seuil (généralement 2 × durée HC).
+  domain: automation
+  source_url: https://github.com/USER/pompe-piscine-ha/blob/main/blueprints/automation/pompe-piscine/pompe_complement_hp.yaml
+  input:
+    pompe_switch:
+      name: Switch pompe
+      selector:
+        entity:
+          domain: switch
+    temperature_sensor:
+      name: Sensor température eau
+      selector:
+        entity:
+          domain: sensor
+          device_class: temperature
+    heure_complement:
+      name: Heure démarrage complément
+      description: Heure à laquelle lancer la filtration HP
+      default: "10:00:00"
+      selector:
+        time:
+    duree_hc_max:
+      name: Durée HC déjà effectuée (heures)
+      description: La durée déjà couverte par la filtration HC nocturne
+      default: 8
+      selector:
+        number:
+          min: 1
+          max: 12
+          step: 0.5
+          unit_of_measurement: h
+    temp_seuil:
+      name: Température seuil (°C)
+      description: >
+        Au-dessus de cette T°, la filtration nécessite un complément en HP.
+        Doit valoir 2 × durée_hc_max (ex: 8h HC → seuil 16°C)
+      default: 16
+      selector:
+        number:
+          min: 10
+          max: 30
+          step: 1
+          unit_of_measurement: "°C"
+
+trigger:
+  - platform: time
+    at: !input heure_complement
+
+variables:
+  temp: !input temperature_sensor
+  duree_max_h: !input duree_hc_max
+
+condition:
+  - condition: numeric_state
+    entity_id: !input temperature_sensor
+    above: !input temp_seuil
+
+action:
+  - service: switch.turn_on
+    target:
+      entity_id: !input pompe_switch
+  - delay:
+      seconds: >
+        {% set t = states(temp) | float(0) %}
+        {{ (((t / 2) - duree_max_h) * 3600) | int }}
+  - service: switch.turn_off
+    target:
+      entity_id: !input pompe_switch
+
+mode: single

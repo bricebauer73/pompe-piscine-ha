@@ -1,0 +1,78 @@
+blueprint:
+  name: "Pompe Piscine — Démarrage Heures Creuses"
+  description: >
+    Démarre la pompe à l'heure de début des HC et la fait tourner pendant
+    `min(T°/2, durée HC)` heures. Plus la T° eau est haute, plus la
+    filtration est longue. Si > durée HC disponible, complément géré par
+    le blueprint "Complément Heures Pleines".
+  domain: automation
+  source_url: https://github.com/USER/pompe-piscine-ha/blob/main/blueprints/automation/pompe-piscine/pompe_demarrage_hc.yaml
+  input:
+    pompe_switch:
+      name: Switch pompe
+      description: Le switch qui commande la pompe (via Sonoff POW R3)
+      selector:
+        entity:
+          domain: switch
+    temperature_sensor:
+      name: Sensor température eau
+      description: Le sensor DS18B20 mesurant la température piscine
+      selector:
+        entity:
+          domain: sensor
+          device_class: temperature
+    heure_debut_hc:
+      name: Heure début Heures Creuses
+      description: Heure à laquelle démarrer la pompe
+      default: "22:30:00"
+      selector:
+        time:
+    duree_hc_max:
+      name: Durée HC disponible (heures)
+      description: Nombre d'heures de HC disponibles dans la nuit
+      default: 8
+      selector:
+        number:
+          min: 1
+          max: 12
+          step: 0.5
+          unit_of_measurement: h
+    temp_min:
+      name: Température minimale (°C)
+      description: En dessous de cette température, la pompe ne démarre pas
+      default: 12
+      selector:
+        number:
+          min: 0
+          max: 20
+          step: 1
+          unit_of_measurement: "°C"
+
+trigger:
+  - platform: time
+    at: !input heure_debut_hc
+
+variables:
+  pompe: !input pompe_switch
+  temp: !input temperature_sensor
+  duree_max_h: !input duree_hc_max
+
+condition:
+  - condition: numeric_state
+    entity_id: !input temperature_sensor
+    above: !input temp_min
+
+action:
+  - service: switch.turn_on
+    target:
+      entity_id: !input pompe_switch
+  - delay:
+      seconds: >
+        {% set t = states(temp) | float(20) %}
+        {% set max_s = duree_max_h * 3600 %}
+        {{ ([t / 2 * 3600, max_s] | min) | int }}
+  - service: switch.turn_off
+    target:
+      entity_id: !input pompe_switch
+
+mode: single

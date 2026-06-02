@@ -1,6 +1,83 @@
-{
-  "name": "Pompe Piscine HA",
-  "render_readme": true,
-  "country": ["FR"],
-  "homeassistant": "2024.6.0"
-}
+# ══════════════════════════════════════════════════════════════
+# ESPHome — PZEM-004T mesure consommation pompe
+# ESP32 Wemos D1 Mini 32
+# TX → GPIO17  |  RX → GPIO16  |  5V  |  GND
+# Pince CT autour du fil PHASE (L) vers la pompe uniquement
+# ══════════════════════════════════════════════════════════════
+
+esphome:
+  name: pzem-piscine
+  friendly_name: PZEM Piscine
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+logger:
+
+api:
+  encryption:
+    key: !secret esphome_api_key
+
+ota:
+  - platform: esphome
+    password: !secret esphome_ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: "PZEM-Piscine Fallback"
+    password: "piscine1234"
+
+captive_portal:
+
+uart:
+  rx_pin: GPIO16
+  tx_pin: GPIO17
+  baud_rate: 9600
+  stop_bits: 2
+
+sensor:
+  - platform: pzemac
+    update_interval: 5s
+
+    current:
+      name: "Pompe courant"
+      accuracy_decimals: 2
+      filters:
+        - or:
+            - throttle_average: 10s
+            - delta: 0.1
+
+    voltage:
+      name: "Pompe tension"
+      accuracy_decimals: 1
+
+    power:
+      name: "Pompe puissance"
+      accuracy_decimals: 0
+      filters:
+        - or:
+            - throttle_average: 10s
+            - delta: 10
+
+    energy:
+      name: "Pompe energie"
+      accuracy_decimals: 3
+
+    power_factor:
+      name: "Pompe facteur puissance"
+      accuracy_decimals: 2
+
+    frequency:
+      name: "Pompe frequence"
+      accuracy_decimals: 1
+
+  - platform: uptime
+    name: "PZEM piscine uptime"
+
+binary_sensor:
+  - platform: status
+    name: "PZEM piscine statut"

@@ -1,0 +1,114 @@
+# ══════════════════════════════════════════════════════════════
+# POMPE PISCINE — Package Home Assistant
+# Hayward SP1622XE251 | Sonoff POW R3 | PZEM-004T | DS18B20
+# Heures Creuses EDF : 22h30 → 06h30
+# ══════════════════════════════════════════════════════════════
+
+# ── Tarifs modifiables depuis le dashboard ───────────────────
+input_number:
+  tarif_hc:
+    name: "Tarif HC"
+    min: 0.05
+    max: 0.50
+    step: 0.001
+    initial: 0.1828
+    unit_of_measurement: "€/kWh"
+    icon: mdi:lightning-bolt
+  tarif_hp:
+    name: "Tarif HP"
+    min: 0.05
+    max: 0.50
+    step: 0.001
+    initial: 0.2516
+    unit_of_measurement: "€/kWh"
+    icon: mdi:currency-eur
+
+# ── Compteurs énergie auto-resetés ───────────────────────────
+utility_meter:
+  pompe_energie_jour:
+    source: sensor.pompe_energie
+    cycle: daily
+  pompe_energie_semaine:
+    source: sensor.pompe_energie
+    cycle: weekly
+  pompe_energie_mois:
+    source: sensor.pompe_energie
+    cycle: monthly
+
+# ── Sensors calculés ─────────────────────────────────────────
+template:
+  - sensor:
+      - name: "Tarif EDF"
+        state: >
+          {% set t = now().hour * 60 + now().minute %}
+          {% if t >= 1350 or t < 390 %}Heures Creuses{% else %}Heures Pleines{% endif %}
+        icon: >
+          {% if is_state('sensor.tarif_edf', 'Heures Creuses') %}
+            mdi:battery-charging-low
+          {% else %}
+            mdi:currency-eur
+          {% endif %}
+
+      - name: "Pompe ratio HC"
+        state: >
+          {% set temp = states('sensor.temperature_piscine') | float(20) %}
+          {% set duree = temp / 2 %}
+          {% if duree <= 8 %}1.0
+          {% else %}{{ (8 / duree) | round(3) }}{% endif %}
+
+      - name: "Pompe duree filtration"
+        unit_of_measurement: "h"
+        icon: mdi:timer
+        state: >
+          {{ (states('sensor.temperature_piscine') | float(0) / 2) | round(1) }}
+
+      - name: "Pompe cout jour"
+        unit_of_measurement: "€"
+        icon: mdi:currency-eur
+        state: >
+          {% set e = states('sensor.pompe_energie_jour') | float(0) %}
+          {% set r_hc = states('sensor.pompe_ratio_hc') | float(1) %}
+          {% set t_hc = states('input_number.tarif_hc') | float(0.1828) %}
+          {% set t_hp = states('input_number.tarif_hp') | float(0.2516) %}
+          {{ (e * (r_hc * t_hc + (1 - r_hc) * t_hp)) | round(3) }}
+
+      - name: "Pompe cout semaine"
+        unit_of_measurement: "€"
+        icon: mdi:currency-eur
+        state: >
+          {% set e = states('sensor.pompe_energie_semaine') | float(0) %}
+          {% set r_hc = states('sensor.pompe_ratio_hc') | float(1) %}
+          {% set t_hc = states('input_number.tarif_hc') | float(0.1828) %}
+          {% set t_hp = states('input_number.tarif_hp') | float(0.2516) %}
+          {{ (e * (r_hc * t_hc + (1 - r_hc) * t_hp)) | round(3) }}
+
+      - name: "Pompe cout mois"
+        unit_of_measurement: "€"
+        icon: mdi:currency-eur
+        state: >
+          {% set e = states('sensor.pompe_energie_mois') | float(0) %}
+          {% set r_hc = states('sensor.pompe_ratio_hc') | float(1) %}
+          {% set t_hc = states('input_number.tarif_hc') | float(0.1828) %}
+          {% set t_hp = states('input_number.tarif_hp') | float(0.2516) %}
+          {{ (e * (r_hc * t_hc + (1 - r_hc) * t_hp)) | round(3) }}
+
+      - name: "Pompe cout annuel projete"
+        unit_of_measurement: "€"
+        icon: mdi:chart-line
+        state: >
+          {{ (states('sensor.pompe_cout_mois') | float(0) * 12) | round(2) }}
+
+# ── Historique long terme ────────────────────────────────────
+recorder:
+  include:
+    entities:
+      - switch.piscine_sonoff_10027646ab
+      - sensor.pompe_cout_jour
+      - sensor.pompe_cout_semaine
+      - sensor.pompe_cout_mois
+      - sensor.pompe_energie_jour
+      - sensor.pompe_energie_semaine
+      - sensor.pompe_energie_mois
+      - sensor.pompe_puissance
+      - sensor.temperature_piscine
+      - sensor.tarif_edf

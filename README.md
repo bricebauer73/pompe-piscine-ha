@@ -129,7 +129,7 @@ Modifiables directement depuis le dashboard (carte Coûts) :
 
 ```yaml
 # Switches
-switch.pompe_piscine             # On/Off via Sonoff
+switch.piscine_sonoff_10027646ab             # On/Off via Sonoff
 
 # Sensors mesure
 sensor.pompe_puissance           # Puissance instantanée (W)

@@ -1,120 +1,58 @@
-#!/usr/bin/env bash
 # ══════════════════════════════════════════════════════════════
-# install.sh — Pompe Piscine HA
-# Auto-détecte le type d'install HA et copie les fichiers
+# ESPHome — Sonde température piscine
+# ESP32 + DS18B20 dans doigt de gant inox 1/2" sur PVC 63mm
 # ══════════════════════════════════════════════════════════════
 
-set -e
+esphome:
+  name: sonde-piscine
+  friendly_name: Sonde Piscine
 
-GREEN='\033[0;32m'; YELLOW='\033[1;33m'; RED='\033[0;31m'
-BLUE='\033[0;34m'; CYAN='\033[0;36m'; BOLD='\033[1m'; NC='\033[0m'
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
 
-ok()   { echo -e "${GREEN}✓${NC} $1"; }
-warn() { echo -e "${YELLOW}⚠${NC} $1"; }
-err()  { echo -e "${RED}✗${NC} $1"; exit 1; }
-info() { echo -e "${CYAN}→${NC} $1"; }
+logger:
 
-cat << 'BANNER'
-╔══════════════════════════════════════════════════╗
-║   POMPE PISCINE HA — Installeur                  ║
-║   Hayward SP1622XE251 | Heures Creuses EDF      ║
-╚══════════════════════════════════════════════════╝
-BANNER
+api:
+  encryption:
+    key: !secret esphome_api_key
 
-# ── Détection HA ─────────────────────────────────────────────
-HA_TYPE=""
-HA_CONFIG=""
+ota:
+  - platform: esphome
+    password: !secret esphome_ota_password
 
-if [ -f "/config/configuration.yaml" ]; then
-  HA_TYPE="HA OS / Supervised / Container"
-  HA_CONFIG="/config"
-elif [ -f "$HOME/.homeassistant/configuration.yaml" ]; then
-  HA_TYPE="HA Core (venv)"
-  HA_CONFIG="$HOME/.homeassistant"
-elif [ -f "/usr/share/hassio/homeassistant/configuration.yaml" ]; then
-  HA_TYPE="HA Supervised"
-  HA_CONFIG="/usr/share/hassio/homeassistant"
-else
-  warn "Type HA non détecté"
-  echo -n "Chemin vers le dossier HA (contenant configuration.yaml) : "
-  read -r HA_CONFIG
-  [ -f "$HA_CONFIG/configuration.yaml" ] || err "configuration.yaml introuvable"
-  HA_TYPE="Personnalisé"
-fi
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: "Sonde-Piscine Fallback"
+    password: "piscine1234"
 
-ok "Installation détectée : $HA_TYPE"
-ok "Config HA : $HA_CONFIG"
+captive_portal:
 
-# ── Backup ──────────────────────────────────────────────────
-TS=$(date +%Y%m%d_%H%M%S)
-BACKUP="$HA_CONFIG/backups/pompe_piscine_$TS"
-mkdir -p "$BACKUP"
-cp "$HA_CONFIG/configuration.yaml" "$BACKUP/" 2>/dev/null || true
-ok "Backup → $BACKUP"
+# Résistance pull-up 4.7kΩ entre GPIO4 et 3.3V obligatoire
+one_wire:
+  - platform: gpio
+    pin: GPIO4
 
-# ── Package ─────────────────────────────────────────────────
-mkdir -p "$HA_CONFIG/packages"
-cp packages/pompe_piscine.yaml "$HA_CONFIG/packages/"
-ok "Package installé → packages/pompe_piscine.yaml"
+sensor:
+  - platform: dallas_temp
+    # Adresse récupérée dans les logs ESPHome au 1er boot
+    # Chercher "Found sensor with address" puis copier l'adresse ici
+    address: 0x0000000000000000
+    name: "Temperature piscine"
+    update_interval: 30s
+    accuracy_decimals: 1
+    filters:
+      - median:
+          window_size: 5
+          send_every: 5
+          send_first_at: 1
 
-# ── configuration.yaml ──────────────────────────────────────
-CONF="$HA_CONFIG/configuration.yaml"
-if grep -qE "^\s*packages:\s*!include" "$CONF" 2>/dev/null; then
-  warn "'packages:' déjà présent — vérifier manuellement"
-elif grep -qE "^homeassistant:" "$CONF"; then
-  sed -i.bak '/^homeassistant:/a\  packages: !include_dir_named packages' "$CONF"
-  ok "Ajout 'packages:' sous 'homeassistant:'"
-else
-  cat >> "$CONF" << 'YAML_EOF'
+  - platform: uptime
+    name: "Sonde piscine uptime"
 
-homeassistant:
-  packages: !include_dir_named packages
-YAML_EOF
-  ok "Bloc 'homeassistant.packages' ajouté"
-fi
-
-# ── Blueprints ──────────────────────────────────────────────
-BP_DIR="$HA_CONFIG/blueprints/automation/pompe-piscine"
-mkdir -p "$BP_DIR"
-cp blueprints/automation/pompe-piscine/*.yaml "$BP_DIR/"
-ok "Blueprints installés → blueprints/automation/pompe-piscine/"
-
-# ── ESPHome ─────────────────────────────────────────────────
-for d in "/config/esphome" "$HA_CONFIG/esphome"; do
-  if [ -d "$d" ]; then
-    cp esphome/sonde_temperature.yaml "$d/"
-    cp esphome/pzem_pompe.yaml "$d/"
-    ok "Configs ESPHome → $d"
-    warn "Mettre à jour l'adresse DS18B20 dans sonde_temperature.yaml après 1er boot"
-    break
-  fi
-done
-
-# ── Récap ───────────────────────────────────────────────────
-echo ""
-echo -e "${GREEN}${BOLD}━━ Installation terminée ━━━━━━━━━━━━━━━━━━━━${NC}"
-echo ""
-echo -e "${BOLD}Étapes restantes (manuelles) :${NC}"
-echo ""
-echo -e "  ${CYAN}1.${NC} Flasher Sonoff POW R3 (Tasmota)"
-echo -e "     https://tasmota.github.io/install/"
-echo ""
-echo -e "  ${CYAN}2.${NC} Compiler/Flasher les ESP32 via ESPHome"
-echo -e "     - sonde_temperature.yaml (DS18B20)"
-echo -e "     - pzem_pompe.yaml (PZEM-004T)"
-echo ""
-echo -e "  ${CYAN}3.${NC} Redémarrer Home Assistant"
-echo -e "     Paramètres → Système → Redémarrer"
-echo ""
-echo -e "  ${CYAN}4.${NC} Créer les 3 automations depuis les blueprints"
-echo -e "     Paramètres → Automatisations → ➕ Créer depuis blueprint"
-echo -e "     - Pompe Piscine — Démarrage Heures Creuses"
-echo -e "     - Pompe Piscine — Complément Heures Pleines"
-echo -e "     - Pompe Piscine — Arrêt sécurité fin HC"
-echo ""
-echo -e "  ${CYAN}5.${NC} Importer le dashboard"
-echo -e "     Tableau de bord → ⋮ → Éditeur YAML → coller :"
-echo -e "     lovelace/piscine_dashboard.yaml"
-echo ""
-echo -e "${YELLOW}Tarifs EDF par défaut : HC = 0.1828 €/kWh | HP = 0.2516 €/kWh${NC}"
-echo -e "${YELLOW}(modifiables directement depuis le dashboard)${NC}"
+binary_sensor:
+  - platform: status
+    name: "Sonde piscine statut"
